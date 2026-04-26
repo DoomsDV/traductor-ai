@@ -72,13 +72,6 @@ export default function TranslatorPanel() {
 
 	return (
 		<form className="translator" onSubmit={handleTranslate}>
-			<div className="translator-tabs" aria-label="Tipo de traduccion">
-				<button className="mode-tab active" type="button" aria-pressed="true">
-					<span aria-hidden="true">T</span>
-					Texto
-				</button>
-			</div>
-
 			<div className="language-shell">
 				<section className="language-column" aria-label="Texto en guarani">
 					<div className="language-bar">
@@ -105,8 +98,6 @@ export default function TranslatorPanel() {
 						<span>{guarani.length}/5000</span>
 					</div>
 				</section>
-
-				<div className="direction-lock" aria-hidden="true">{'->'}</div>
 
 				<section className="language-column result" aria-label="Traduccion en espanol">
 					<div className="language-bar">

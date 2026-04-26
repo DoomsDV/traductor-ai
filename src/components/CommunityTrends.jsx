@@ -72,7 +72,12 @@ export default function CommunityTrends() {
 	}
 
 	if (trends.length === 0) {
-		return <p className="trend-state">Todavia no hay definiciones activas.</p>;
+		return (
+			<p className="trend-state trend-empty">
+				Aun no hay tendencias publicadas. Se el primero en compartir una definicion para la
+				comunidad.
+			</p>
+		);
 	}
 
 	return (
