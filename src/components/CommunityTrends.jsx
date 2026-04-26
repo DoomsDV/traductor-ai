@@ -74,7 +74,7 @@ export default function CommunityTrends() {
 	if (trends.length === 0) {
 		return (
 			<p className="trend-state trend-empty">
-				Aun no hay tendencias publicadas. Se el primero en compartir una definicion para la
+				Aún no hay tendencias publicadas. Sé el primero en compartir una definición para la
 				comunidad.
 			</p>
 		);

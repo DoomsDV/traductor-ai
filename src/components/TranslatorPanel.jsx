@@ -50,13 +50,13 @@ export default function TranslatorPanel() {
 			const payload = await response.json().catch(() => null);
 
 			if (!response.ok || payload?.status === 'error') {
-				throw new Error(payload?.message || 'No se pudo completar la traduccion.');
+				throw new Error(payload?.message || 'No se pudo completar la traducción.');
 			}
 
 			const translated = readTranslation(payload);
 			setSpanish(translated || '');
 			setStatus('success');
-			setMessage(translated ? '' : 'La API respondio, pero no incluyo un texto traducido.');
+			setMessage(translated ? '' : 'La API respondió, pero no incluyó un texto traducido.');
 		} catch (error) {
 			setStatus('error');
 			setMessage(error.message || 'No se pudo conectar con el traductor.');
@@ -75,7 +75,7 @@ export default function TranslatorPanel() {
 			<div className="language-shell">
 				<section className="language-column" aria-label="Texto en guarani">
 					<div className="language-bar">
-						<button className="chip active" type="button">Guarani</button>
+						<button className="chip active" type="button">Guaraní</button>
 					</div>
 					<textarea
 						aria-label="Texto en guarani"
@@ -99,15 +99,15 @@ export default function TranslatorPanel() {
 					</div>
 				</section>
 
-				<section className="language-column result" aria-label="Traduccion en espanol">
+				<section className="language-column result" aria-label="Traducción en español">
 					<div className="language-bar">
-						<button className="chip active" type="button">Espanol</button>
+						<button className="chip active" type="button">Español</button>
 					</div>
 					<textarea
-						aria-label="Traduccion en espanol"
+						aria-label="Traducción en espanol"
 						value={spanish}
 						onChange={(event) => setSpanish(event.target.value)}
-						placeholder="Traduccion"
+						placeholder="Traducción"
 						rows={9}
 					/>
 					<div className="panel-footer result-footer">
