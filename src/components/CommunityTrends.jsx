@@ -330,50 +330,62 @@ function CommunityTrendsContent() {
 			) : null}
 
 			{activeTab === 'create' ? (
-				<form className="grid gap-4 rounded-[28px] border border-[#d8e2f8] bg-white p-5 sm:p-6" onSubmit={handleCreateDefinition}>
-					<label className="grid gap-2 text-sm font-bold text-[#374151]">
-						Palabra
-						<input
-							type="text"
-							value={wordText}
-							onChange={(event) => setWordText(event.target.value)}
-							maxLength={100}
-							placeholder="Ej: Mba'éichapa"
-							required
-							className="h-12 rounded-2xl border border-[#d8e2f8] bg-white px-4 text-base text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
-						/>
-					</label>
-					<label className="grid gap-2 text-sm font-bold text-[#374151]">
-						Definición
-						<textarea
-							value={definitionText}
-							onChange={(event) => setDefinitionText(event.target.value)}
-							maxLength={1000}
-							rows={4}
-							placeholder="Escribe la definición en español o jopara."
-							required
-							className="min-h-32 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
-						/>
-					</label>
-					<label className="grid gap-2 text-sm font-bold text-[#374151]">
-						Ejemplo
-						<textarea
-							value={contextExample}
-							onChange={(event) => setContextExample(event.target.value)}
-							maxLength={1000}
-							rows={3}
-							placeholder="Ejemplo de uso en contexto."
-							className="min-h-24 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
-						/>
-					</label>
-					<button
-						type="submit"
-						className="min-h-12 justify-self-start rounded-full bg-[#1d4ed8] px-6 text-sm font-bold text-white transition hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:bg-[#d1d5db] disabled:text-[#6b7280] max-sm:w-full"
-						disabled={!canSubmitDefinition || createMutation.isPending}
-					>
-						{createMutation.isPending ? 'Publicando...' : 'Publicar definición'}
-					</button>
-				</form>
+				isLoggedIn ? (
+					<form className="grid gap-4 rounded-[28px] border border-[#d8e2f8] bg-white p-5 sm:p-6" onSubmit={handleCreateDefinition}>
+						<label className="grid gap-2 text-sm font-bold text-[#374151]">
+							Palabra
+							<input
+								type="text"
+								value={wordText}
+								onChange={(event) => setWordText(event.target.value)}
+								maxLength={100}
+								placeholder="Ej: Mba'éichapa"
+								required
+								className="h-12 rounded-2xl border border-[#d8e2f8] bg-white px-4 text-base text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
+							/>
+						</label>
+						<label className="grid gap-2 text-sm font-bold text-[#374151]">
+							Definición
+							<textarea
+								value={definitionText}
+								onChange={(event) => setDefinitionText(event.target.value)}
+								maxLength={1000}
+								rows={4}
+								placeholder="Escribe la definición en español o jopara."
+								required
+								className="min-h-32 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
+							/>
+						</label>
+						<label className="grid gap-2 text-sm font-bold text-[#374151]">
+							Ejemplo
+							<textarea
+								value={contextExample}
+								onChange={(event) => setContextExample(event.target.value)}
+								maxLength={1000}
+								rows={3}
+								placeholder="Ejemplo de uso en contexto."
+								className="min-h-24 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
+							/>
+						</label>
+						<button
+							type="submit"
+							className="min-h-12 justify-self-start rounded-full bg-[#1d4ed8] px-6 text-sm font-bold text-white transition hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:bg-[#d1d5db] disabled:text-[#6b7280] max-sm:w-full"
+							disabled={!canSubmitDefinition || createMutation.isPending}
+						>
+							{createMutation.isPending ? 'Publicando...' : 'Publicar definición'}
+						</button>
+					</form>
+				) : (
+					<div className="grid place-items-center gap-3 rounded-[28px] border border-[#e2e8f0] bg-white px-6 py-12 text-center shadow-sm">
+						<svg className="h-12 w-12 text-[#94a3b8] mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+							<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+						</svg>
+						<h3 className="m-0 text-xl font-bold text-[#0f172a]">Inicia sesión para aportar</h3>
+						<p className="m-0 max-w-md text-base leading-relaxed text-[#475569]">
+							Únete a la comunidad para crear y compartir tus propias definiciones con los demás usuarios.
+						</p>
+					</div>
+				)
 			) : null}
 
 			{activeTab === 'top' ? (

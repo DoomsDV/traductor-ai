@@ -117,27 +117,27 @@ export default function DefinitionCard({
 	}
 
 	return (
-		<article className="rounded-[28px] border border-[#d8e2f8] bg-white/95 p-5 shadow-[0_8px_30px_-18px_rgba(29,78,216,0.32)] transition duration-300 hover:-translate-y-0.5 hover:border-[#b8cdf7] hover:shadow-[0_18px_42px_-24px_rgba(29,78,216,0.42)] sm:p-7">
-			<div className="grid gap-5 sm:grid-cols-[84px_minmax(0,1fr)]">
+		<article className="rounded-3xl border border-[#e2e8f0] bg-white p-4 shadow-[0_4px_20px_-12px_rgba(29,78,216,0.15)] transition duration-300 hover:-translate-y-0.5 hover:border-[#cbd5e1] hover:shadow-[0_12px_32px_-16px_rgba(29,78,216,0.25)] sm:p-5">
+			<div className="grid gap-4 sm:grid-cols-[64px_minmax(0,1fr)]">
 				<div
-					className="flex w-fit min-w-20 items-center gap-3 py-3 text-[#1d4ed8] sm:flex-col sm:justify-start sm:pt-2 sm:min-h-24 sm:w-16 sm:gap-1 sm:px-3"
+					className="flex w-fit min-w-16 items-center gap-2 py-2 text-[#1d4ed8] sm:flex-col sm:justify-start sm:pt-1 sm:min-h-20 sm:w-16 sm:gap-1"
 					aria-label={`${definition.score} puntos`}
 				>
-					<strong className="text-4xl leading-none font-black text-center text-[#0f172a]">{definition.score}</strong>
+					<strong className="text-3xl leading-none font-black text-center text-[#0f172a]">{definition.score}</strong>
 					<span className="text-[10px] font-bold uppercase tracking-widest text-[#64748b]">PTS</span>
 				</div>
 
 				<div className="min-w-0">
-					<header className="relative flex items-start justify-between gap-4">
+					<header className="relative flex items-start justify-between gap-3">
 						<div className="min-w-0">
-							<div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[#5f6b7a]">
-								<span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#eef5ff] text-xs font-bold text-[#1d4ed8]">
+							<div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#64748b]">
+								<span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#f1f5f9] text-[11px] font-bold text-[#1d4ed8]">
 									{(definition.author || 'C').charAt(0).toUpperCase()}
 								</span>
-								<span className="font-semibold text-[#374151]">{definition.author || 'Comunidad'}</span>
-								{definition.dateFormatted ? <span className="text-xs text-[#9ca3af]">{definition.dateFormatted}</span> : null}
+								<span className="font-semibold text-[#334155]">{definition.author || 'Comunidad'}</span>
+								{definition.dateFormatted ? <span className="text-[11px] text-[#9ca3af]">{definition.dateFormatted}</span> : null}
 							</div>
-							<h3 className="m-0 text-3xl font-extrabold tracking-tight text-[#0f172a]">{definition.word || 'Sin palabra'}</h3>
+							<h3 className="m-0 text-2xl font-extrabold tracking-tight text-[#0f172a]">{definition.word || 'Sin palabra'}</h3>
 						</div>
 
 						{isAuthor ? (
@@ -217,17 +217,17 @@ export default function DefinitionCard({
 						</form>
 					) : (
 						<>
-							<p className="mt-4 max-w-4xl text-base leading-7 text-[#111827]">{definition.definition}</p>
+							<p className="mt-3 max-w-4xl text-[15px] leading-relaxed text-[#1e293b]">{definition.definition}</p>
 							{definition.example ? (
-								<div className="mt-5 relative rounded-2xl bg-[#f8fafc] px-6 py-5 text-base italic leading-relaxed text-[#475569] shadow-inner">
-									<svg className="absolute left-4 top-4 h-6 w-6 text-[#cbd5e1] opacity-50" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+								<div className="mt-3 relative rounded-2xl bg-[#f8fafc] px-5 py-4 text-[14px] italic leading-relaxed text-[#475569] shadow-inner">
+									<svg className="absolute left-3 top-3 h-5 w-5 text-[#cbd5e1] opacity-50" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
 										<path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
 									</svg>
-									<p className="relative z-10 m-0 ml-6">{definition.example}</p>
+									<p className="relative z-10 m-0 ml-5">{definition.example}</p>
 								</div>
 							) : null}
 
-							<footer className="mt-6 flex flex-wrap items-center justify-between gap-3">
+							<footer className="mt-4 flex flex-wrap items-center justify-between gap-3">
 								<div className="inline-flex items-center gap-1 rounded-full bg-[#f1f5f9] p-1" aria-label="Votos de definición">
 									<VoteButton
 										direction="up"
