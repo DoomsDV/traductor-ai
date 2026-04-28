@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MyDefinitionsPanel from '../components/MyDefinitionsPanel.jsx';
+
+const pageTitle = 'Mi Perfil | Aportes en Comunidad';
+const pageDescription = 'Consulta todas tus definiciones publicadas y su estado en la comunidad.';
+---
+
+<Layout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalURL="/perfil"
+	ogImage="/og/traductor-ia-og.svg"
+>
+	<main class="profile-page">
+		<section class="profile-hero">
+			<p class="eyebrow">MI PERFIL</p>
+			<h1>Mis definiciones</h1>
+			<p>Un historial completo de tus aportes a la comunidad, incluyendo el estado de cada entrada.</p>
+		</section>
+
+		<section class="profile-content" aria-labelledby="profile-definitions">
+			<h2 id="profile-definitions">Historial de aportes</h2>
+			<MyDefinitionsPanel client:load />
+		</section>
+	</main>
+</Layout>

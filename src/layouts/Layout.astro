@@ -1,11 +1,23 @@
 ---
+import TopbarSessionControl from '../components/TopbarSessionControl.jsx';
+import SEO from '../components/SEO.astro';
 import '../styles/global.css';
 
 interface Props {
 	title?: string;
+	description?: string;
+	canonicalURL?: string;
+	keywords?: string;
+	ogImage?: string;
 }
 
-const { title = 'Traductor' } = Astro.props;
+const {
+	title = 'Traductor Guarani IA | Espanol a Jopara natural',
+	description,
+	canonicalURL,
+	keywords,
+	ogImage,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -16,18 +28,31 @@ const { title = 'Traductor' } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		<SEO
+			title={title}
+			description={description}
+			canonicalURL={canonicalURL}
+			keywords={keywords}
+			ogImage={ogImage}
+		/>
 	</head>
 	<body>
 		<header class="site-header">
 			<a class="brand" href="/" aria-label="Traductor">
-				<span class="brand-mark">A</span>
+				<span class="brand-mark" aria-hidden="true">
+					<svg viewBox="0 0 24 24" focusable="false">
+						<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.1A8.1 8.1 0 0 1 18.9 8ZM12 4.1c.7 1 1.3 2.3 1.7 3.9h-3.4c.4-1.6 1-2.9 1.7-3.9ZM4.3 14a7.8 7.8 0 0 1 0-4h3.4a16.7 16.7 0 0 0 0 4H4.3Zm.8 2h3a15.7 15.7 0 0 0 1.4 3.1A8.1 8.1 0 0 1 5.1 16Zm3-8h-3a8.1 8.1 0 0 1 4.4-3.1A15.7 15.7 0 0 0 8.1 8Zm3.9 11.9c-.7-1-1.3-2.3-1.7-3.9h3.4c-.4 1.6-1 2.9-1.7 3.9ZM14.1 14H9.9a14.6 14.6 0 0 1 0-4h4.2a14.6 14.6 0 0 1 0 4Zm.4 5.1a15.7 15.7 0 0 0 1.4-3.1h3a8.1 8.1 0 0 1-4.4 3.1ZM16.3 14a16.7 16.7 0 0 0 0-4h3.4a7.8 7.8 0 0 1 0 4h-3.4Z" />
+					</svg>
+				</span>
 				<span>Traductor</span>
 			</a>
 			<nav class="site-nav" aria-label="Principal">
 				<a href="/">Traducir</a>
 				<a href="/comunidad">Comunidad</a>
 			</nav>
+			<div class="topbar-account-slot">
+				<TopbarSessionControl client:load />
+			</div>
 		</header>
 		<slot />
 	</body>

@@ -1,0 +1,51 @@
+---
+interface Props {
+	title?: string;
+	description?: string;
+	canonicalURL?: string;
+	keywords?: string;
+	ogImage?: string;
+	ogType?: 'website' | 'article';
+	twitterCard?: 'summary' | 'summary_large_image';
+}
+
+const {
+	title = 'Traductor Guarani IA | Espanol a Jopara natural',
+	description = 'Traductor IA de Guarani y Jopara para Paraguay. Traduce frases y descubre significados con apoyo comunitario.',
+	canonicalURL,
+	keywords = 'traductor guarani espanol, jopara paraguay, diccionario guarani online, traducir castellano a guarani, cultura paraguaya',
+	ogImage = '/og/traductor-ia-og.svg',
+	ogType = 'website',
+	twitterCard = 'summary_large_image',
+} = Astro.props;
+
+const baseSite = (import.meta.env.PUBLIC_SITE_URL || Astro.site?.toString() || '').trim();
+
+function toAbsoluteUrl(pathOrUrl?: string) {
+	if (!pathOrUrl) return undefined;
+	if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+	if (!baseSite) return pathOrUrl;
+	return new URL(pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`, baseSite).toString();
+}
+
+const resolvedCanonical = toAbsoluteUrl(canonicalURL || Astro.url?.pathname || '/');
+const resolvedImage = toAbsoluteUrl(ogImage);
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords} />
+
+{resolvedCanonical ? <link rel="canonical" href={resolvedCanonical} /> : null}
+
+<meta property="og:locale" content="es_PY" />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{resolvedCanonical ? <meta property="og:url" content={resolvedCanonical} /> : null}
+{resolvedImage ? <meta property="og:image" content={resolvedImage} /> : null}
+
+<meta name="twitter:card" content={twitterCard} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{resolvedImage ? <meta name="twitter:image" content={resolvedImage} /> : null}

@@ -1,9 +1,21 @@
 ---
 import TranslatorPanel from '../components/TranslatorPanel.jsx';
 import Layout from '../layouts/Layout.astro';
+
+const pageTitle = 'Traductor Guarani IA | Traduce Espanol a Jopara natural';
+const pageDescription =
+	'El primer traductor con inteligencia artificial que entiende el Jopara paraguayo. Traduce frases, aprende guarani y unete a la comunidad mas grande de Paraguay.';
+const pageKeywords =
+	'traductor guarani espanol, jopara paraguay, diccionario guarani online, traducir castellano a guarani, cultura paraguaya';
 ---
 
-<Layout title="Traductor IA | Guarani a Espanol">
+<Layout
+	title={pageTitle}
+	description={pageDescription}
+	keywords={pageKeywords}
+	canonicalURL="/"
+	ogImage="/og/traductor-ia-og.svg"
+>
 	<main class="home">
 		<TranslatorPanel client:load />
 	</main>

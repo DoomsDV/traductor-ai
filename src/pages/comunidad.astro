@@ -1,27 +1,34 @@
 ---
-import CommunityTrends from '../components/CommunityTrends.jsx';
-import Layout from '../layouts/Layout.astro';
+import CommunityTrends from "../components/CommunityTrends.jsx";
+import CommunityLoginPanel from "../components/CommunityLoginPanel.jsx";
+import Layout from "../layouts/Layout.astro";
+
+const pageTitle = "Comunidad Jopara | Tendencias y Diccionario Guaraní";
+const pageDescription =
+	"Descubre las palabras mejor votadas del diccionario guaraní online, ejemplos reales y tendencias de la comunidad de traductor IA en Paraguay.";
 ---
 
-<Layout title="Comunidad | Traductor IA">
+<Layout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalURL="/comunidad"
+	ogImage="/og/traductor-ia-og.svg"
+>
 	<main class="community">
 		<section class="community-hero" aria-labelledby="community-title">
 			<div>
 				<p class="eyebrow">Comunidad</p>
-				<h1 id="community-title">Tendencias y definiciones compartidas.</h1>
+				<h1 id="community-title">
+					Tendencias y definiciones compartidas.
+				</h1>
 				<p>
-					Explora las palabras con mejor puntaje y revisa ejemplos publicados por otros
-					usuarios.
+					Explora las palabras con mejor puntaje y revisa ejemplos
+					publicados por otros usuarios.
 				</p>
 			</div>
 
 			<aside class="login-panel" aria-label="Crear definiciones">
-				<h2>Participa en la comunidad</h2>
-				<p>Inicia sesión para crear tus propias definiciones y votar las mejores entradas.</p>
-				<button type="button" class="google-button">
-					<img src="/google-icons/android_light_rd_na@2x.png" alt="" class="google-icon" aria-hidden="true" />
-					Iniciar sesión con Google
-				</button>
+				<CommunityLoginPanel client:load />
 			</aside>
 		</section>
 
