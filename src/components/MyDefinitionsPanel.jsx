@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { apiConfig, buildApiUrl } from '../lib/api';
 import { userStore } from '../store/userStore';
+import CommentThread from './CommentThread.jsx';
+import QueryProvider from './QueryProvider.jsx';
 
 function pick(source, ...keys) {
 	for (const key of keys) {
@@ -24,6 +26,7 @@ function normalizeRows(payload) {
 		downvotes: Number(pick(item, 'downvotes', 'DOWNVOTES') || 0),
 		status: pick(item, 'status', 'STATUS') || 'ACTIVE',
 		dateFormatted: pick(item, 'date_formatted', 'DATE_FORMATTED'),
+		commentCount: Number(pick(item, 'comment_count', 'COMMENT_COUNT') || 0),
 	}));
 }
 
@@ -56,10 +59,21 @@ function VoteIcon({ direction, className }) {
 }
 
 export default function MyDefinitionsPanel() {
+	return (
+		<QueryProvider>
+			<MyDefinitionsPanelContent />
+		</QueryProvider>
+	);
+}
+
+function MyDefinitionsPanelContent() {
 	const session = useStore(userStore);
 	const [rows, setRows] = useState([]);
 	const [status, setStatus] = useState('idle');
 	const [message, setMessage] = useState('');
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => setMounted(true), []);
 
 	const userId = Number(session?.userProfile?.user_id || 0);
 	const isLoggedIn = Boolean(session?.isLoggedIn && userId > 0);
@@ -108,25 +122,29 @@ export default function MyDefinitionsPanel() {
 		};
 	}, [isLoggedIn, endpoint]);
 
+	if (!mounted) {
+		return <p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">Cargando...</p>;
+	}
+
 	if (!isLoggedIn) {
 		return (
-			<p className="my-definitions-state">
+			<p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">
 				Inicia sesión para ver tus aportes en la comunidad.
 			</p>
 		);
 	}
 
 	if (status === 'loading') {
-		return <p className="my-definitions-state">Cargando tus definiciones...</p>;
+		return <p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">Cargando tus definiciones...</p>;
 	}
 
 	if (status === 'error') {
-		return <p className="my-definitions-state error">{message}</p>;
+		return <p className="m-0 rounded-[28px] border border-[#f2b8b5] bg-[#fceeee] p-8 text-center font-semibold text-[#b3261e]">{message}</p>;
 	}
 
 	if (rows.length === 0) {
 		return (
-			<p className="my-definitions-state">
+			<p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">
 				Aún no tienes aportes publicados. Ve a Comunidad y crea tu primera definición.
 			</p>
 		);
@@ -135,33 +153,65 @@ export default function MyDefinitionsPanel() {
 	return (
 		<div className="grid gap-4">
 			{rows.map((row) => (
-				<article key={row.id || `${row.word}-${row.dateFormatted}`} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
-					<header className="flex items-start justify-between gap-4 mb-2">
-						<h3 className="m-0 text-xl font-bold tracking-tight text-slate-900">{row.word || 'Sin palabra'}</h3>
-						<p className="m-0 text-sm font-semibold text-slate-400 text-right shrink-0">
-							{(row.status || '').toUpperCase() === 'ACTIVE'
-								? formatDateLabel(row.dateFormatted)
-								: `${formatDateLabel(row.dateFormatted)} - ${row.status}`}
-						</p>
-					</header>
-					<p className="m-0 text-[15px] leading-relaxed text-slate-600 mb-3">{row.definitionText || 'Sin definición'}</p>
-					{row.contextExample ? (
-						<blockquote className="m-0 mb-3 border-l-2 border-blue-200 bg-slate-50 px-4 py-2 italic text-sm text-slate-500 rounded-r-xl">
-							{row.contextExample}
-						</blockquote>
-					) : null}
-					<footer className="flex flex-wrap items-center gap-2 mt-4" aria-label="Panel de votos">
-						<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
-							<VoteIcon direction="up" className="h-4 w-4 text-blue-600 fill-current" />
-							{row.upvotes}
-						</div>
-						<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
-							<VoteIcon direction="down" className="h-4 w-4 text-red-500 fill-current" />
-							{row.downvotes}
-						</div>
-					</footer>
-				</article>
+				<MyDefinitionCard
+					key={row.id || `${row.word}-${row.dateFormatted}`}
+					row={row}
+					currentUserId={userId}
+					isLoggedIn={isLoggedIn}
+				/>
 			))}
 		</div>
+	);
+}
+
+function MyDefinitionCard({ row, currentUserId, isLoggedIn }) {
+	const [commentsOpen, setCommentsOpen] = useState(false);
+
+	return (
+		<article className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
+			<header className="flex items-start justify-between gap-4 mb-2">
+				<h3 className="m-0 text-xl font-bold tracking-tight text-slate-900">{row.word || 'Sin palabra'}</h3>
+				<p className="m-0 text-sm font-semibold text-slate-400 text-right shrink-0">
+					{(row.status || '').toUpperCase() === 'ACTIVE'
+						? formatDateLabel(row.dateFormatted)
+						: `${formatDateLabel(row.dateFormatted)} - ${row.status}`}
+				</p>
+			</header>
+			<p className="m-0 text-[15px] leading-relaxed text-slate-600 mb-3">{row.definitionText || 'Sin definición'}</p>
+			{row.contextExample ? (
+				<blockquote className="m-0 mb-3 border-l-2 border-blue-200 bg-slate-50 px-4 py-2 italic text-sm text-slate-500 rounded-r-xl">
+					{row.contextExample}
+				</blockquote>
+			) : null}
+			<footer className="flex flex-wrap items-center justify-between gap-3 mt-4" aria-label="Panel de votos">
+				<div className="flex gap-2">
+					<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
+						<VoteIcon direction="up" className="h-4 w-4 text-blue-600 fill-current" />
+						{row.upvotes}
+					</div>
+					<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
+						<VoteIcon direction="down" className="h-4 w-4 text-red-500 fill-current" />
+						{row.downvotes}
+					</div>
+				</div>
+
+				<button
+					type="button"
+					className="inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold text-[#475569] transition hover:bg-slate-100 hover:text-[#0f172a]"
+					onClick={() => setCommentsOpen(!commentsOpen)}
+				>
+					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
+					</svg>
+					{commentsOpen ? 'Ocultar comentarios' : `${row.commentCount || 0} Comentarios`}
+				</button>
+			</footer>
+
+			{commentsOpen ? (
+				<div className="mt-5 border-t border-slate-100 pt-5">
+					<CommentThread definitionId={row.id} currentUserId={currentUserId} isLoggedIn={isLoggedIn} />
+				</div>
+			) : null}
+		</article>
 	);
 }

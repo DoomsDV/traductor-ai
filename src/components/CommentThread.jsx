@@ -55,12 +55,12 @@ export default function CommentThread({ definitionId, currentUserId, isLoggedIn 
 		onMutate: async (variables) => {
 			await queryClient.cancelQueries({ queryKey });
 			const previousComments = queryClient.getQueryData(queryKey);
-			const nextVote = getNextVote(variables.currentVote, variables.voteValue);
+			const nextVote = getNextVote(variables.currentVote, variables.clickedVote);
 
 			queryClient.setQueryData(queryKey, (oldComments = []) =>
 				oldComments.map((comment) =>
 					Number(comment.id) === Number(variables.commentId)
-						? applyVoteCounts(comment, variables.currentVote, variables.voteValue)
+						? applyVoteCounts(comment, variables.currentVote, variables.clickedVote)
 						: comment,
 				),
 			);
@@ -173,11 +173,13 @@ export default function CommentThread({ definitionId, currentUserId, isLoggedIn 
 			return;
 		}
 
+		const nextVote = getNextVote(currentVote, voteValue);
 		const hadLocalVote = Object.prototype.hasOwnProperty.call(commentVotes, commentId);
 		voteMutation.mutate({
 			userId: currentUserId,
 			commentId,
-			voteValue,
+			voteValue: nextVote,
+			clickedVote: voteValue,
 			currentVote,
 			hadLocalVote,
 			previousLocalVote: commentVotes[commentId],

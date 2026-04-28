@@ -160,12 +160,12 @@ function CommunityTrendsContent() {
 		onMutate: async (variables) => {
 			await queryClient.cancelQueries({ queryKey: communityKeys.trends });
 			const previousTrends = queryClient.getQueryData(communityKeys.trends);
-			const nextVote = getNextVote(variables.currentVote, variables.voteValue);
+			const nextVote = getNextVote(variables.currentVote, variables.clickedVote);
 
 			queryClient.setQueryData(communityKeys.trends, (oldTrends = []) =>
 				oldTrends.map((definition) =>
 					Number(definition.id) === Number(variables.definitionId)
-						? applyVoteCounts(definition, variables.currentVote, variables.voteValue)
+						? applyVoteCounts(definition, variables.currentVote, variables.clickedVote)
 						: definition,
 				),
 			);
@@ -246,11 +246,13 @@ function CommunityTrendsContent() {
 		}
 
 		clearActionState();
+		const nextVote = getNextVote(currentVote, voteValue);
 		const hadLocalVote = Object.prototype.hasOwnProperty.call(definitionVotes, definitionId);
 		voteMutation.mutate({
 			userId,
 			definitionId,
-			voteValue,
+			voteValue: nextVote, // Enviamos explícitamente el valor final (0 para remover)
+			clickedVote: voteValue, // Usamos clickedVote para el cálculo de optimistic UI
 			currentVote,
 			hadLocalVote,
 			previousLocalVote: definitionVotes[definitionId],
