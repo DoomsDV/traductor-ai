@@ -65,7 +65,7 @@ export default function TopbarSessionControl() {
 						{displayName}
 					</p>
 					<p className="topbar-dropdown-support" aria-hidden="true">
-						Puntos de reputacion: {reputation}
+						Puntos de reputación: {reputation}
 					</p>
 					<a className="topbar-dropdown-item" href="/perfil" role="menuitem" onClick={() => setOpen(false)}>
 						Mi perfil
@@ -79,7 +79,7 @@ export default function TopbarSessionControl() {
 							setOpen(false);
 						}}
 					>
-						Cerrar sesion
+						Cerrar sesión
 					</button>
 				</div>
 			) : null}

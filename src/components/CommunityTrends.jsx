@@ -150,7 +150,7 @@ export default function CommunityTrends() {
 				...prev,
 				[definitionId]: nextVote,
 			}));
-			setActionMessage(apiMessage);
+			setActionMessage(apiMessage.replace(/\s*\(Toggle off\)\.?/gi, ''));
 			await loadTrends();
 		} catch (error) {
 			setActionError(error.message || 'No se pudo registrar el voto.');

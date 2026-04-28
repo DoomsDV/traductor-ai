@@ -32,7 +32,7 @@ export default function CommunityLoginPanel() {
 		<>
 			<h2>Mba'éichapa, {shortName}!</h2>
 			<p className="login-reputation">Reputación: {reputation} pts</p>
-			<button type="button" className="login-cta" onClick={openCreateDefinition}>
+			<button type="button" className="login-cta" style={{ marginTop: '20px' }} onClick={openCreateDefinition}>
 				Aportar nueva definición
 			</button>
 		</>

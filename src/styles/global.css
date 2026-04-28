@@ -519,7 +519,7 @@ input {
 
 .profile-hero h1 {
 	max-width: none;
-	font-size: clamp(42px, 6vw, 72px);
+	font-size: clamp(36px, 5vw, 56px);
 	line-height: 1.06;
 	letter-spacing: 0;
 	font-weight: 700;
@@ -529,7 +529,7 @@ input {
 	max-width: 760px;
 	margin: 20px 0 0;
 	color: var(--muted);
-	font-size: clamp(20px, 1.85vw, 28px);
+	font-size: clamp(18px, 1.5vw, 22px);
 	line-height: 1.45;
 }
 
@@ -549,7 +549,7 @@ input {
 
 .profile-content h2 {
 	margin: 0;
-	font-size: clamp(34px, 3vw, 44px);
+	font-size: clamp(28px, 2.5vw, 36px);
 	line-height: 1.16;
 	letter-spacing: 0;
 }
