@@ -33,27 +33,23 @@ function formatDateLabel(rawDate) {
 	const match = rawDate.trim().match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/);
 	if (!match) return rawDate;
 
-	const day = Number(match[1]);
-	const month = Number(match[2]);
-	const yearRaw = Number(match[3]);
+	const day = String(Number(match[1])).padStart(2, '0');
+	const month = String(Number(match[2])).padStart(2, '0');
+	const yearStr = match[3];
+	const year = yearStr.length === 4 ? yearStr.slice(-2) : yearStr;
 
-	if (!Number.isFinite(day) || !Number.isFinite(month) || month < 1 || month > 12) return rawDate;
-
-	const year = match[3].length === 2 ? 2000 + yearRaw : yearRaw;
-	const monthLabel = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][month - 1];
-
-	return `${String(day).padStart(2, '0')} ${monthLabel} ${year}`;
+	return `${day}-${month}-${year}`;
 }
 
-function VoteIcon({ direction }) {
+function VoteIcon({ direction, className }) {
 	const isUp = direction === 'up';
 
 	return (
-		<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+		<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true" className={className || 'h-5 w-5 fill-current'}>
 			{isUp ? (
-				<path d="M9.2 10.6V20H6.4c-1.1 0-2-.9-2-2v-5.4c0-.8.5-1.6 1.3-1.9l3.5-1.2ZM10.8 20V9.8l3.2-5c.3-.5.8-.8 1.3-.8h.2c.9 0 1.6.7 1.6 1.6v2.9h2.5c1.1 0 2 .9 2 2 0 .2 0 .4-.1.6l-1.6 6.4c-.2.9-1 1.5-1.9 1.5h-7.2Z" />
+				<path d="M12 5.2 5.5 11.7l1.4 1.4 4.1-4.1V19h2V9l4.1 4.1 1.4-1.4L12 5.2Z" />
 			) : (
-				<path d="M14.8 13.4V4H17.6c1.1 0 2 .9 2 2v5.4c0 .8-.5 1.6-1.3 1.9l-3.5 1.2ZM13.2 4v10.2l-3.2 5c-.3.5-.8.8-1.3.8h-.2c-.9 0-1.6-.7-1.6-1.6v-2.9H4.4c-1.1 0-2-.9-2-2 0-.2 0-.4.1-.6l1.6-6.4c.2-.9 1-1.5 1.9-1.5h7.2Z" />
+				<path d="M12 18.8 18.5 12.3l-1.4-1.4-4.1 4.1V5h-2v10l-4.1-4.1-1.4 1.4L12 18.8Z" />
 			)}
 		</svg>
 	);
@@ -137,37 +133,31 @@ export default function MyDefinitionsPanel() {
 	}
 
 	return (
-		<div className="my-definitions-list">
+		<div className="grid gap-4">
 			{rows.map((row) => (
-				<article key={row.id || `${row.word}-${row.dateFormatted}`} className="my-definition-card">
-					<header className="my-definition-head">
-						<h3>{row.word || 'Sin palabra'}</h3>
-						<p className="my-definition-date">
+				<article key={row.id || `${row.word}-${row.dateFormatted}`} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
+					<header className="flex items-start justify-between gap-4 mb-2">
+						<h3 className="m-0 text-xl font-bold tracking-tight text-slate-900">{row.word || 'Sin palabra'}</h3>
+						<p className="m-0 text-sm font-semibold text-slate-400 text-right shrink-0">
 							{(row.status || '').toUpperCase() === 'ACTIVE'
 								? formatDateLabel(row.dateFormatted)
 								: `${formatDateLabel(row.dateFormatted)} - ${row.status}`}
 						</p>
 					</header>
-					<p className="my-definition-body">{row.definitionText || 'Sin definición'}</p>
-					{row.contextExample ? <blockquote>{row.contextExample}</blockquote> : null}
-					<footer className="my-definition-votes" aria-label="Panel de votos">
-						<div className="my-definition-vote positive">
-							<span className="my-definition-vote-icon">
-								<VoteIcon direction="up" />
-							</span>
-							<div className="my-definition-vote-copy">
-								<strong>{row.upvotes}</strong>
-								<span>a favor</span>
-							</div>
+					<p className="m-0 text-[15px] leading-relaxed text-slate-600 mb-3">{row.definitionText || 'Sin definición'}</p>
+					{row.contextExample ? (
+						<blockquote className="m-0 mb-3 border-l-2 border-blue-200 bg-slate-50 px-4 py-2 italic text-sm text-slate-500 rounded-r-xl">
+							{row.contextExample}
+						</blockquote>
+					) : null}
+					<footer className="flex flex-wrap items-center gap-2 mt-4" aria-label="Panel de votos">
+						<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
+							<VoteIcon direction="up" className="h-4 w-4 text-blue-600 fill-current" />
+							{row.upvotes}
 						</div>
-						<div className="my-definition-vote negative">
-							<span className="my-definition-vote-icon">
-								<VoteIcon direction="down" />
-							</span>
-							<div className="my-definition-vote-copy">
-								<strong>{row.downvotes}</strong>
-								<span>en contra</span>
-							</div>
+						<div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600 border border-slate-100">
+							<VoteIcon direction="down" className="h-4 w-4 text-red-500 fill-current" />
+							{row.downvotes}
 						</div>
 					</footer>
 				</article>

@@ -12,15 +12,23 @@ const pageDescription = 'Consulta todas tus definiciones publicadas y su estado 
 	canonicalURL="/perfil"
 	ogImage="/og/traductor-ia-og.svg"
 >
-	<main class="profile-page">
-		<section class="profile-hero">
-			<p class="eyebrow">MI PERFIL</p>
-			<h1>Mis definiciones</h1>
-			<p>Un historial completo de tus aportes a la comunidad, incluyendo el estado de cada entrada.</p>
+	<main class="community">
+		<section class="community-hero" aria-labelledby="profile-title">
+			<div>
+				<p class="eyebrow">MI PERFIL</p>
+				<h1 id="profile-title">Mis definiciones.</h1>
+				<p>Un historial completo de tus aportes a la comunidad, incluyendo el estado de cada entrada.</p>
+			</div>
 		</section>
 
-		<section class="profile-content" aria-labelledby="profile-definitions">
-			<h2 id="profile-definitions">Historial de aportes</h2>
+		<section class="trends-section" aria-labelledby="profile-definitions">
+			<div class="section-heading">
+				<div>
+					<p class="eyebrow">Aportes</p>
+					<h2 id="profile-definitions">Historial</h2>
+				</div>
+			</div>
+
 			<MyDefinitionsPanel client:load />
 		</section>
 	</main>
