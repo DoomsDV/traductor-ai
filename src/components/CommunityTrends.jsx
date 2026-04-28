@@ -118,7 +118,7 @@ export default function CommunityTrends() {
 
 	async function handleVote(definitionId, voteValue) {
 		if (!isLoggedIn) {
-			setActionError('Debes iniciar sesion para votar.');
+			setActionError('Debes iniciar sesión para votar.');
 			return;
 		}
 
@@ -163,7 +163,7 @@ export default function CommunityTrends() {
 		event.preventDefault();
 
 		if (!isLoggedIn) {
-			setActionError('Debes iniciar sesion para crear definiciones.');
+			setActionError('Debes iniciar sesión para crear definiciones.');
 			return;
 		}
 
@@ -185,10 +185,10 @@ export default function CommunityTrends() {
 			const payload = await response.json().catch(() => null);
 
 			if (!response.ok || payload?.status === 'error') {
-				throw new Error(parseApiError(response, payload, 'No se pudo crear la definicion.'));
+				throw new Error(parseApiError(response, payload, 'No se pudo crear la definición.'));
 			}
 
-			setActionMessage(payload?.message || 'Definicion creada.');
+			setActionMessage(payload?.message || 'Definición creada.');
 			setWordText('');
 			setDefinitionText('');
 			setContextExample('');
@@ -217,7 +217,7 @@ export default function CommunityTrends() {
 						className={`community-tab ${activeTab === 'create' ? 'active' : ''}`}
 						onClick={() => setActiveTab('create')}
 					>
-						Crear definicion
+						Crear definición
 					</button>
 				</div>
 			</div>
@@ -234,18 +234,18 @@ export default function CommunityTrends() {
 							value={wordText}
 							onChange={(event) => setWordText(event.target.value)}
 							maxLength={100}
-							placeholder="Ej: Mbaeichapa"
+							placeholder="Ej: Mba'éichapa"
 							required
 						/>
 					</label>
 					<label>
-						Definicion
+						Definición
 						<textarea
 							value={definitionText}
 							onChange={(event) => setDefinitionText(event.target.value)}
 							maxLength={1000}
 							rows={4}
-							placeholder="Escribe la definicion en espanol o jopara."
+							placeholder="Escribe la definición en español o jopara."
 							required
 						/>
 					</label>
@@ -260,7 +260,7 @@ export default function CommunityTrends() {
 						/>
 					</label>
 					<button type="submit" className="definition-submit" disabled={!canSubmitDefinition}>
-						{creating ? 'Publicando...' : 'Publicar definicion'}
+						{creating ? 'Publicando...' : 'Publicar definición'}
 					</button>
 				</form>
 			) : null}
@@ -271,7 +271,7 @@ export default function CommunityTrends() {
 					{status === 'error' ? <p className="trend-state trend-error">{message}</p> : null}
 					{status === 'success' && trends.length === 0 ? (
 						<p className="trend-state trend-empty">
-							Aun no hay tendencias publicadas. Se el primero en compartir una definicion para la
+							Aún no hay tendencias publicadas. Sé el primero en compartir una definición para la
 							comunidad.
 						</p>
 					) : null}

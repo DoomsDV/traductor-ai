@@ -36,7 +36,7 @@ export default function GoogleAuthButton() {
 		const idToken = credentialResponse?.credential;
 
 		if (!idToken) {
-			setError('Google no devolvio el token de autenticacion.');
+			setError('Google no devolvió el token de autenticación.');
 			return;
 		}
 
@@ -68,22 +68,22 @@ export default function GoogleAuthButton() {
 				const backendMessage =
 					payload?.message ||
 					(rawBody && rawBody.length < 500 ? rawBody : '') ||
-					'No se pudo iniciar sesion con Google.';
+					'No se pudo iniciar sesión con Google.';
 				throw new Error(`HTTP ${response.status}: ${backendMessage}`);
 			}
 
 			const profile = normalizeUserProfile(payload);
 			if (!profile.email) {
-				throw new Error('La API no devolvio email del usuario.');
+				throw new Error('La API no devolvió email del usuario.');
 			}
 
 			const didLogin = loginUser(profile);
 			if (!didLogin) {
-				throw new Error('No se pudo guardar la sesion del usuario.');
+				throw new Error('No se pudo guardar la sesión del usuario.');
 			}
 		} catch (fetchError) {
 			console.error(fetchError);
-			setError(fetchError?.message || 'Error inesperado al iniciar sesion.');
+			setError(fetchError?.message || 'Error inesperado al iniciar sesión.');
 		} finally {
 			setLoading(false);
 		}
@@ -102,7 +102,7 @@ export default function GoogleAuthButton() {
 	}
 
 	return (
-		<div className="google-auth">
+		<div className="google-auth" style={{ marginTop: '20px', marginBottom: '8px' }}>
 			<GoogleOAuthProvider clientId={clientId}>
 				<GoogleLogin
 					onSuccess={handleSuccess}
@@ -113,7 +113,7 @@ export default function GoogleAuthButton() {
 					size="large"
 				/>
 			</GoogleOAuthProvider>
-			{loading ? <p className="auth-feedback">Iniciando sesion...</p> : null}
+			{loading ? <p className="auth-feedback">Iniciando sesión...</p> : null}
 			{error ? <p className="auth-feedback auth-error">{error}</p> : null}
 		</div>
 	);

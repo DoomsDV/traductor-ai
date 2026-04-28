@@ -22,7 +22,7 @@ export default function CommunityLoginPanel() {
 		return (
 			<>
 				<h2>Participa en la comunidad</h2>
-				<p>Inicia sesion para crear tus propias definiciones y votar las mejores entradas.</p>
+				<p>Inicia sesión para crear tus propias definiciones y votar las mejores entradas.</p>
 				<GoogleAuthButton />
 			</>
 		);
@@ -30,10 +30,10 @@ export default function CommunityLoginPanel() {
 
 	return (
 		<>
-			<h2>Mba'eichapa, {shortName}!</h2>
-			<p className="login-reputation">Reputacion: {reputation} pts</p>
+			<h2>Mba'éichapa, {shortName}!</h2>
+			<p className="login-reputation">Reputación: {reputation} pts</p>
 			<button type="button" className="login-cta" onClick={openCreateDefinition}>
-				Aportar nueva definicion
+				Aportar nueva definición
 			</button>
 		</>
 	);

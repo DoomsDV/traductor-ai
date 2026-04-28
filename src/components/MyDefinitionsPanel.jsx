@@ -115,7 +115,7 @@ export default function MyDefinitionsPanel() {
 	if (!isLoggedIn) {
 		return (
 			<p className="my-definitions-state">
-				Inicia sesion para ver tus aportes en la comunidad.
+				Inicia sesión para ver tus aportes en la comunidad.
 			</p>
 		);
 	}
@@ -131,7 +131,7 @@ export default function MyDefinitionsPanel() {
 	if (rows.length === 0) {
 		return (
 			<p className="my-definitions-state">
-				Aun no tienes aportes publicados. Ve a Comunidad y crea tu primera definicion.
+				Aún no tienes aportes publicados. Ve a Comunidad y crea tu primera definición.
 			</p>
 		);
 	}
@@ -148,7 +148,7 @@ export default function MyDefinitionsPanel() {
 								: `${formatDateLabel(row.dateFormatted)} - ${row.status}`}
 						</p>
 					</header>
-					<p className="my-definition-body">{row.definitionText || 'Sin definicion'}</p>
+					<p className="my-definition-body">{row.definitionText || 'Sin definición'}</p>
 					{row.contextExample ? <blockquote>{row.contextExample}</blockquote> : null}
 					<footer className="my-definition-votes" aria-label="Panel de votos">
 						<div className="my-definition-vote positive">

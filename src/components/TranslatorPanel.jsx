@@ -138,8 +138,8 @@ export default function TranslatorPanel() {
 					onClick={swapLanguages}
 					disabled={status === 'loading'}
 				>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M7 7h10.2l-3.1-3.1L15.5 2.5 21 8l-5.5 5.5-1.4-1.4L17.2 9H7V7Zm10 10H6.8l3.1 3.1-1.4 1.4L3 16l5.5-5.5 1.4 1.4L6.8 15H17v2Z" />
+					<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+						<path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z" />
 					</svg>
 				</button>
 				<button className="chip active" type="button">{targetLang.label}</button>
@@ -188,8 +188,8 @@ export default function TranslatorPanel() {
 					onClick={swapLanguages}
 					disabled={status === 'loading'}
 				>
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M7 7h10.2l-3.1-3.1L15.5 2.5 21 8l-5.5 5.5-1.4-1.4L17.2 9H7V7Zm10 10H6.8l3.1 3.1-1.4 1.4L3 16l5.5-5.5 1.4 1.4L6.8 15H17v2Z" />
+					<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+						<path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z" />
 					</svg>
 				</button>
 
