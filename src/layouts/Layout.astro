@@ -46,13 +46,17 @@ const {
 				</span>
 				<span>Traductor</span>
 			</a>
-			<nav class="site-nav" aria-label="Principal">
-				<a href="/">Traducir</a>
-				<a href="/comunidad">Comunidad</a>
-			</nav>
-			<div class="topbar-account-slot">
-				<TopbarSessionControl client:load />
-			</div>
+			{false && (
+				<>
+					<nav class="site-nav" aria-label="Principal">
+						<a href="/">Traducir</a>
+						<a href="/comunidad">Comunidad</a>
+					</nav>
+					<div class="topbar-account-slot">
+						<TopbarSessionControl client:load />
+					</div>
+				</>
+			)}
 		</header>
 		<slot />
 	</body>
