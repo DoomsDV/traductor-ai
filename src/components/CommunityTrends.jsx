@@ -1,85 +1,206 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { apiConfig, buildApiUrl } from '../lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+	applyVoteCounts,
+	communityKeys,
+	createDefinition,
+	deleteDefinition,
+	fetchMyDefinitions,
+	fetchTrends,
+	getNextVote,
+	updateDefinition,
+	voteDefinition,
+} from '../lib/communityApi';
 import { userStore } from '../store/userStore';
+import DefinitionCard from './DefinitionCard.jsx';
+import QueryProvider from './QueryProvider.jsx';
 
-function pick(item, ...keys) {
-	for (const key of keys) {
-		if (item?.[key] !== undefined && item[key] !== null) return item[key];
-	}
-
-	return '';
+function mutationMessage(payload, fallback) {
+	return String(payload?.message || fallback)
+		.replace(/Definition created\.?/gi, 'Definición creada.')
+		.replace(/Definition updated\.?/gi, 'Definición actualizada.')
+		.replace(/Definition deleted\.?/gi, 'Definición eliminada.')
+		.replace(/\s*\(Toggle off\)\.?/gi, '');
 }
 
-function normalizeRows(payload) {
-	const data = payload?.data || payload?.items || payload;
-	if (!Array.isArray(data)) return [];
-
-	return data.map((item) => ({
-		id: Number(pick(item, 'definition_id', 'DEFINITION_ID', 'id', 'ID') || 0),
-		word: pick(item, 'word', 'WORD'),
-		definition: pick(item, 'definition', 'DEFINITION'),
-		example: pick(item, 'example', 'EXAMPLE'),
-		upvotes: Number(pick(item, 'upvotes', 'UPVOTES') || 0),
-		downvotes: Number(pick(item, 'downvotes', 'DOWNVOTES') || 0),
-		score: Number(pick(item, 'score', 'SCORE') || 0),
-		author: pick(item, 'author', 'AUTHOR'),
-		userVote: Number(pick(item, 'user_vote', 'USER_VOTE', 'vote_value', 'VOTE_VALUE') || 0),
-	}));
-}
-
-function parseApiError(response, payload, fallbackMessage) {
-	const message = payload?.message || fallbackMessage;
-	return `HTTP ${response.status}: ${message}`;
-}
-
-export default function CommunityTrends() {
+function CommunityTrendsContent() {
+	const queryClient = useQueryClient();
 	const session = useStore(userStore);
 	const [activeTab, setActiveTab] = useState('top');
-	const [trends, setTrends] = useState([]);
-	const [status, setStatus] = useState('loading');
-	const [message, setMessage] = useState('');
 	const [actionMessage, setActionMessage] = useState('');
 	const [actionError, setActionError] = useState('');
-	const [votingId, setVotingId] = useState(0);
-	const [creating, setCreating] = useState(false);
-	const [userVotes, setUserVotes] = useState({});
+	const [definitionVotes, setDefinitionVotes] = useState({});
 
 	const [wordText, setWordText] = useState('');
 	const [definitionText, setDefinitionText] = useState('');
 	const [contextExample, setContextExample] = useState('');
 
-	const trendsEndpoint = useMemo(() => buildApiUrl(apiConfig.communityPath, '/trends'), []);
-	const voteEndpoint = useMemo(() => buildApiUrl(apiConfig.communityPath, '/votes'), []);
-	const definitionEndpoint = useMemo(() => buildApiUrl(apiConfig.communityPath, '/definitions'), []);
-
 	const userId = Number(session?.userProfile?.user_id || 0);
 	const isLoggedIn = Boolean(session?.isLoggedIn && userId > 0);
-	const canSubmitDefinition = Boolean(isLoggedIn && wordText.trim() && definitionText.trim() && !creating);
+	const canSubmitDefinition = Boolean(isLoggedIn && wordText.trim() && definitionText.trim());
 
-	const loadTrends = useCallback(async () => {
-		setStatus('loading');
-		setMessage('');
+	const {
+		data: trends = [],
+		status,
+		error,
+	} = useQuery({
+		queryKey: communityKeys.trends,
+		queryFn: fetchTrends,
+	});
+	const { data: myDefinitions = [] } = useQuery({
+		queryKey: communityKeys.myDefinitions(userId),
+		queryFn: () => fetchMyDefinitions(userId),
+		enabled: isLoggedIn,
+	});
+	const ownedDefinitionIds = useMemo(
+		() => new Set(myDefinitions.map((definition) => Number(definition.id)).filter(Boolean)),
+		[myDefinitions],
+	);
 
-		try {
-			const response = await fetch(trendsEndpoint);
-			const payload = await response.json().catch(() => null);
+	const trendsForRender = useMemo(
+		() =>
+			trends.map((definition) => ({
+				...definition,
+				authorId:
+					definition.authorId || (ownedDefinitionIds.has(Number(definition.id)) ? userId : definition.authorId),
+				userVote: Object.prototype.hasOwnProperty.call(definitionVotes, definition.id)
+					? definitionVotes[definition.id]
+					: definition.userVote,
+			})),
+		[trends, definitionVotes, ownedDefinitionIds, userId],
+	);
 
-			if (!response.ok || payload?.status === 'error') {
-				throw new Error(parseApiError(response, payload, 'No se pudieron cargar las tendencias.'));
+	const createMutation = useMutation({
+		mutationFn: createDefinition,
+		onSuccess: (payload) => {
+			setActionError('');
+			setActionMessage(mutationMessage(payload, 'Definición creada.'));
+			setWordText('');
+			setDefinitionText('');
+			setContextExample('');
+			setActiveTab('top');
+			queryClient.invalidateQueries({ queryKey: communityKeys.trends });
+			queryClient.invalidateQueries({ queryKey: communityKeys.myDefinitions(userId) });
+		},
+		onError: (mutationError) => {
+			setActionMessage('');
+			setActionError(mutationError?.message || 'No se pudo crear la definición.');
+		},
+	});
+
+	const updateMutation = useMutation({
+		mutationFn: updateDefinition,
+		onMutate: async (variables) => {
+			await queryClient.cancelQueries({ queryKey: communityKeys.trends });
+			const previousTrends = queryClient.getQueryData(communityKeys.trends);
+
+			queryClient.setQueryData(communityKeys.trends, (oldTrends = []) =>
+				oldTrends.map((definition) =>
+					Number(definition.id) === Number(variables.definitionId)
+						? {
+								...definition,
+								definition: variables.definitionText,
+								example: variables.contextExample,
+							}
+						: definition,
+				),
+			);
+
+			return { previousTrends };
+		},
+		onSuccess: (payload) => {
+			setActionError('');
+			setActionMessage(mutationMessage(payload, 'Definición actualizada.'));
+		},
+		onError: (mutationError, _variables, context) => {
+			if (context?.previousTrends) {
+				queryClient.setQueryData(communityKeys.trends, context.previousTrends);
+			}
+			setActionMessage('');
+			setActionError(mutationError?.message || 'No se pudo actualizar la definición.');
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: communityKeys.trends });
+			queryClient.invalidateQueries({ queryKey: communityKeys.myDefinitions(userId) });
+		},
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: deleteDefinition,
+		onMutate: async (variables) => {
+			await queryClient.cancelQueries({ queryKey: communityKeys.trends });
+			const previousTrends = queryClient.getQueryData(communityKeys.trends);
+
+			queryClient.setQueryData(communityKeys.trends, (oldTrends = []) =>
+				oldTrends.filter((definition) => Number(definition.id) !== Number(variables.definitionId)),
+			);
+
+			return { previousTrends };
+		},
+		onSuccess: (payload) => {
+			setActionError('');
+			setActionMessage(mutationMessage(payload, 'Definición eliminada.'));
+		},
+		onError: (mutationError, _variables, context) => {
+			if (context?.previousTrends) {
+				queryClient.setQueryData(communityKeys.trends, context.previousTrends);
+			}
+			setActionMessage('');
+			setActionError(mutationError?.message || 'No se pudo eliminar la definición.');
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: communityKeys.trends });
+			queryClient.invalidateQueries({ queryKey: communityKeys.myDefinitions(userId) });
+		},
+	});
+
+	const voteMutation = useMutation({
+		mutationFn: voteDefinition,
+		onMutate: async (variables) => {
+			await queryClient.cancelQueries({ queryKey: communityKeys.trends });
+			const previousTrends = queryClient.getQueryData(communityKeys.trends);
+			const nextVote = getNextVote(variables.currentVote, variables.voteValue);
+
+			queryClient.setQueryData(communityKeys.trends, (oldTrends = []) =>
+				oldTrends.map((definition) =>
+					Number(definition.id) === Number(variables.definitionId)
+						? applyVoteCounts(definition, variables.currentVote, variables.voteValue)
+						: definition,
+				),
+			);
+			setDefinitionVotes((previous) => ({
+				...previous,
+				[variables.definitionId]: nextVote,
+			}));
+
+			return { previousTrends };
+		},
+		onSuccess: (payload) => {
+			setActionError('');
+			setActionMessage(mutationMessage(payload, 'Voto registrado.'));
+		},
+		onError: (mutationError, variables, context) => {
+			if (context?.previousTrends) {
+				queryClient.setQueryData(communityKeys.trends, context.previousTrends);
 			}
 
-			setTrends(normalizeRows(payload));
-			setStatus('success');
-		} catch (error) {
-			setStatus('error');
-			setMessage(error.message || 'No se pudo conectar con la comunidad.');
-		}
-	}, [trendsEndpoint]);
-
-	useEffect(() => {
-		loadTrends();
-	}, [loadTrends]);
+			setDefinitionVotes((previous) => {
+				const next = { ...previous };
+				if (variables.hadLocalVote) {
+					next[variables.definitionId] = variables.previousLocalVote;
+				} else {
+					delete next[variables.definitionId];
+				}
+				return next;
+			});
+			setActionMessage('');
+			setActionError(mutationError?.message || 'No se pudo registrar el voto.');
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: communityKeys.trends });
+		},
+	});
 
 	useEffect(() => {
 		function onOpenCreate() {
@@ -92,74 +213,16 @@ export default function CommunityTrends() {
 
 	useEffect(() => {
 		if (!isLoggedIn) {
-			setUserVotes({});
+			setDefinitionVotes({});
 		}
 	}, [isLoggedIn, userId]);
 
-	function resolveVoteState(currentVote, requestedVote, responseMessage) {
-		const messageLower = String(responseMessage || '').toLowerCase();
-
-		if (messageLower.includes('eliminado')) return 0;
-		if (messageLower.includes('cambiado')) return requestedVote;
-		if (messageLower.includes('nuevo')) return requestedVote;
-
-		if (currentVote === requestedVote) return 0;
-		return requestedVote;
-	}
-
-	function getCurrentVote(definitionId) {
-		if (Object.prototype.hasOwnProperty.call(userVotes, definitionId)) {
-			return Number(userVotes[definitionId] || 0);
-		}
-
-		const currentTrend = trends.find((item) => item.id === definitionId);
-		return Number(currentTrend?.userVote || 0);
-	}
-
-	async function handleVote(definitionId, voteValue) {
-		if (!isLoggedIn) {
-			setActionError('Debes iniciar sesión para votar.');
-			return;
-		}
-
-		setVotingId(definitionId);
-		setActionError('');
+	function clearActionState() {
 		setActionMessage('');
-
-		try {
-			const response = await fetch(voteEndpoint, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					user_id: userId,
-					definition_id: definitionId,
-					vote_value: voteValue,
-				}),
-			});
-			const payload = await response.json().catch(() => null);
-
-			if (!response.ok || payload?.status === 'error') {
-				throw new Error(parseApiError(response, payload, 'No se pudo registrar el voto.'));
-			}
-
-			const apiMessage = payload?.message || 'Voto registrado.';
-			const currentVote = getCurrentVote(definitionId);
-			const nextVote = resolveVoteState(currentVote, voteValue, apiMessage);
-
-			setUserVotes((prev) => ({
-				...prev,
-				[definitionId]: nextVote,
-			}));
-			setActionMessage(apiMessage.replace(/\s*\(Toggle off\)\.?/gi, ''));
-			await loadTrends();
-		} catch (error) {
-			setActionError(error.message || 'No se pudo registrar el voto.');
-		} finally {
-			setVotingId(0);
-		}
+		setActionError('');
 	}
 
-	async function handleCreateDefinition(event) {
+	function handleCreateDefinition(event) {
 		event.preventDefault();
 
 		if (!isLoggedIn) {
@@ -167,54 +230,87 @@ export default function CommunityTrends() {
 			return;
 		}
 
-		setCreating(true);
-		setActionError('');
-		setActionMessage('');
-
-		try {
-			const response = await fetch(definitionEndpoint, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					user_id: userId,
-					word_text: wordText.trim(),
-					definition_text: definitionText.trim(),
-					context_example: contextExample.trim(),
-				}),
-			});
-			const payload = await response.json().catch(() => null);
-
-			if (!response.ok || payload?.status === 'error') {
-				throw new Error(parseApiError(response, payload, 'No se pudo crear la definición.'));
-			}
-
-			setActionMessage(payload?.message || 'Definición creada.');
-			setWordText('');
-			setDefinitionText('');
-			setContextExample('');
-			setActiveTab('top');
-			await loadTrends();
-		} catch (error) {
-			setActionError(error.message || 'No se pudo crear la definicion.');
-		} finally {
-			setCreating(false);
-		}
+		clearActionState();
+		createMutation.mutate({
+			userId,
+			wordText: wordText.trim(),
+			definitionText: definitionText.trim(),
+			contextExample: contextExample.trim(),
+		});
 	}
 
+	function handleVote(definitionId, voteValue, currentVote) {
+		if (!isLoggedIn) {
+			setActionError('Debes iniciar sesión para votar.');
+			return;
+		}
+
+		clearActionState();
+		const hadLocalVote = Object.prototype.hasOwnProperty.call(definitionVotes, definitionId);
+		voteMutation.mutate({
+			userId,
+			definitionId,
+			voteValue,
+			currentVote,
+			hadLocalVote,
+			previousLocalVote: definitionVotes[definitionId],
+		});
+	}
+
+	async function handleEdit(definitionId, values) {
+		if (!isLoggedIn) {
+			const loginError = new Error('Debes iniciar sesión para editar definiciones.');
+			setActionError(loginError.message);
+			throw loginError;
+		}
+
+		clearActionState();
+		return updateMutation.mutateAsync({
+			definitionId,
+			userId,
+			...values,
+		});
+	}
+
+	function handleDelete(definitionId) {
+		if (!isLoggedIn) {
+			setActionError('Debes iniciar sesión para eliminar definiciones.');
+			return;
+		}
+
+		clearActionState();
+		deleteMutation.mutate({
+			definitionId,
+			userId,
+		});
+	}
+
+	const votingDefinitionId = voteMutation.isPending ? voteMutation.variables?.definitionId : 0;
+	const updatingDefinitionId = updateMutation.isPending ? updateMutation.variables?.definitionId : 0;
+	const deletingDefinitionId = deleteMutation.isPending ? deleteMutation.variables?.definitionId : 0;
+
 	return (
-		<div className="community-hub">
-			<div className="community-tools">
-				<div className="community-tabs" role="tablist" aria-label="Secciones de comunidad">
+		<div className="grid gap-4">
+			<div className="flex flex-wrap items-center justify-between gap-4">
+				<div
+					className="inline-flex rounded-2xl border border-[#d8e2f8] bg-white p-1.5"
+					role="tablist"
+					aria-label="Secciones de comunidad"
+				>
 					<button
 						type="button"
-						className={`community-tab ${activeTab === 'top' ? 'active' : ''}`}
+						className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+							activeTab === 'top' ? 'bg-[#dbeafe] text-[#1e3a8a]' : 'text-[#374151] hover:bg-[#eef5ff]'
+						}`}
 						onClick={() => setActiveTab('top')}
 					>
 						Top 50
 					</button>
 					<button
 						type="button"
-						className={`community-tab ${activeTab === 'create' ? 'active' : ''}`}
+						className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+							activeTab === 'create' ? 'bg-[#dbeafe] text-[#1e3a8a]' : 'text-[#374151] hover:bg-[#eef5ff]'
+						}`}
 						onClick={() => setActiveTab('create')}
 					>
 						Crear definición
@@ -222,12 +318,20 @@ export default function CommunityTrends() {
 				</div>
 			</div>
 
-			{actionMessage ? <p className="community-feedback">{actionMessage}</p> : null}
-			{actionError ? <p className="community-feedback error">{actionError}</p> : null}
+			{actionMessage ? (
+				<p className="m-0 rounded-2xl bg-[#e8f5e9] px-4 py-3 text-sm font-semibold text-[#0f5f28]">
+					{actionMessage}
+				</p>
+			) : null}
+			{actionError ? (
+				<p className="m-0 rounded-2xl bg-[#fceeee] px-4 py-3 text-sm font-semibold text-[#b3261e]">
+					{actionError}
+				</p>
+			) : null}
 
 			{activeTab === 'create' ? (
-				<form className="definition-form" onSubmit={handleCreateDefinition}>
-					<label>
+				<form className="grid gap-4 rounded-[28px] border border-[#d8e2f8] bg-white p-5 sm:p-6" onSubmit={handleCreateDefinition}>
+					<label className="grid gap-2 text-sm font-bold text-[#374151]">
 						Palabra
 						<input
 							type="text"
@@ -236,9 +340,10 @@ export default function CommunityTrends() {
 							maxLength={100}
 							placeholder="Ej: Mba'éichapa"
 							required
+							className="h-12 rounded-2xl border border-[#d8e2f8] bg-white px-4 text-base text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
 						/>
 					</label>
-					<label>
+					<label className="grid gap-2 text-sm font-bold text-[#374151]">
 						Definición
 						<textarea
 							value={definitionText}
@@ -247,92 +352,76 @@ export default function CommunityTrends() {
 							rows={4}
 							placeholder="Escribe la definición en español o jopara."
 							required
+							className="min-h-32 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
 						/>
 					</label>
-					<label>
-						Ejemplo (opcional)
+					<label className="grid gap-2 text-sm font-bold text-[#374151]">
+						Ejemplo
 						<textarea
 							value={contextExample}
 							onChange={(event) => setContextExample(event.target.value)}
 							maxLength={1000}
 							rows={3}
 							placeholder="Ejemplo de uso en contexto."
+							className="min-h-24 resize-y rounded-2xl border border-[#d8e2f8] bg-white px-4 py-3 text-base leading-6 text-[#111827] outline-none transition focus:border-[#1d4ed8] focus:ring-4 focus:ring-[#dbeafe]"
 						/>
 					</label>
-					<button type="submit" className="definition-submit" disabled={!canSubmitDefinition}>
-						{creating ? 'Publicando...' : 'Publicar definición'}
+					<button
+						type="submit"
+						className="min-h-12 justify-self-start rounded-full bg-[#1d4ed8] px-6 text-sm font-bold text-white transition hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:bg-[#d1d5db] disabled:text-[#6b7280] max-sm:w-full"
+						disabled={!canSubmitDefinition || createMutation.isPending}
+					>
+						{createMutation.isPending ? 'Publicando...' : 'Publicar definición'}
 					</button>
 				</form>
 			) : null}
 
 			{activeTab === 'top' ? (
 				<>
-					{status === 'loading' ? <p className="trend-state">Cargando tendencias...</p> : null}
-					{status === 'error' ? <p className="trend-state trend-error">{message}</p> : null}
-					{status === 'success' && trends.length === 0 ? (
-						<p className="trend-state trend-empty">
-							Aún no hay tendencias publicadas. Sé el primero en compartir una definición para la
-							comunidad.
+					{status === 'pending' ? (
+						<p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">
+							Cargando tendencias...
 						</p>
 					) : null}
-					{status === 'success' && trends.length > 0 ? (
-						<div className="trend-list">
-							{trends.map((trend) => {
-								const selectedVote = Number(userVotes[trend.id] ?? trend.userVote ?? 0);
-								const upvoteClass = `vote-button up ${selectedVote === 1 ? 'active-up' : ''}`;
-								const downvoteClass = `vote-button down ${selectedVote === -1 ? 'active-down' : ''}`;
-
-								return (
-									<article className="trend-card" key={trend.id || `${trend.word}-${trend.definition}`}>
-									<div className="trend-score" aria-label={`${trend.score} puntos`}>
-										<strong>{trend.score}</strong>
-										<span>pts</span>
-									</div>
-									<div className="trend-content">
-										<div className="trend-heading">
-											<h2>{trend.word}</h2>
-											<span>{trend.author || 'Comunidad'}</span>
-										</div>
-										<p>{trend.definition}</p>
-										{trend.example ? <q>{trend.example}</q> : null}
-										<div className="trend-votes">
-											<span>{trend.upvotes} a favor</span>
-											<span>{trend.downvotes} en contra</span>
-										</div>
-										<div className="trend-actions">
-											<button
-												type="button"
-												className={upvoteClass}
-												onClick={() => handleVote(trend.id, 1)}
-												disabled={!isLoggedIn || votingId === trend.id}
-												aria-label="Votar a favor"
-												title="Votar a favor"
-											>
-												<svg viewBox="0 0 24 24" aria-hidden="true">
-													<path d="M12 5.2 5.5 11.7l1.4 1.4 4.1-4.1V19h2V9l4.1 4.1 1.4-1.4L12 5.2Z" />
-												</svg>
-											</button>
-											<button
-												type="button"
-												className={downvoteClass}
-												onClick={() => handleVote(trend.id, -1)}
-												disabled={!isLoggedIn || votingId === trend.id}
-												aria-label="Votar en contra"
-												title="Votar en contra"
-											>
-												<svg viewBox="0 0 24 24" aria-hidden="true">
-													<path d="M12 18.8 18.5 12.3l-1.4-1.4-4.1 4.1V5h-2v10l-4.1-4.1-1.4 1.4L12 18.8Z" />
-												</svg>
-											</button>
-										</div>
-									</div>
-								</article>
-								);
-							})}
+					{status === 'error' ? (
+						<p className="m-0 rounded-[28px] border border-[#f2b8b5] bg-[#fceeee] p-8 text-center font-semibold text-[#b3261e]">
+							{error?.message || 'No se pudo conectar con la comunidad.'}
+						</p>
+					) : null}
+					{status === 'success' && trendsForRender.length === 0 ? (
+						<p className="m-0 rounded-[28px] border border-[#d8e2f8] bg-white p-8 text-center font-semibold text-[#5f6b7a]">
+							Aún no hay tendencias publicadas. Sé el primero en compartir una definición para la comunidad.
+						</p>
+					) : null}
+					{trendsForRender.length > 0 ? (
+						<div className="grid gap-5">
+							{trendsForRender.map((definition) => (
+								<DefinitionCard
+									key={definition.id || `${definition.word}-${definition.definition}`}
+									definition={definition}
+									currentUserId={userId}
+									isLoggedIn={isLoggedIn}
+									currentVote={definition.userVote}
+									onVote={handleVote}
+									onEdit={handleEdit}
+									onDelete={handleDelete}
+									isVoting={Number(votingDefinitionId) === Number(definition.id)}
+									isUpdating={Number(updatingDefinitionId) === Number(definition.id)}
+									isDeleting={Number(deletingDefinitionId) === Number(definition.id)}
+								/>
+							))}
 						</div>
 					) : null}
 				</>
 			) : null}
 		</div>
+	);
+}
+
+export default function CommunityTrends() {
+	return (
+		<QueryProvider>
+			<CommunityTrendsContent />
+		</QueryProvider>
 	);
 }

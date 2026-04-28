@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import "tailwindcss";
 
 :root {
 	color-scheme: light;
@@ -557,10 +558,11 @@ input {
 .my-definitions-state {
 	margin: 0;
 	padding: 28px;
-	border: 1px solid rgba(0, 90, 193, 0.1);
+	border: none;
 	border-radius: 22px;
-	background: var(--surface-strong);
+	background: #ffffff;
 	color: var(--muted);
+	box-shadow: 0 2px 10px -2px rgba(0, 30, 84, 0.05);
 }
 
 .my-definitions-state.error {
@@ -576,16 +578,15 @@ input {
 	display: grid;
 	gap: 20px;
 	padding: 28px;
-	border: 1px solid color-mix(in srgb, var(--outline), white 18%);
+	border: none;
 	border-radius: 22px;
-	background: var(--surface-strong);
+	background: #ffffff;
 	box-shadow: 0 2px 10px -2px rgba(0, 30, 84, 0.08), 0 14px 30px -20px rgba(0, 38, 92, 0.2);
-	transition: transform var(--m3-transition), box-shadow var(--m3-transition), border-color var(--m3-transition);
+	transition: transform var(--m3-transition), box-shadow var(--m3-transition);
 }
 
 .my-definition-card:hover {
 	transform: translateY(-3px);
-	border-color: color-mix(in srgb, var(--primary), white 72%);
 	box-shadow: 0 4px 18px -2px rgba(0, 30, 84, 0.13), 0 24px 48px -26px rgba(0, 38, 92, 0.3);
 }
 
@@ -598,8 +599,8 @@ input {
 
 .my-definition-card h3 {
 	margin: 0;
-	font-size: clamp(32px, 3vw, 40px);
-	line-height: 1.08;
+	font-size: clamp(22px, 2vw, 28px);
+	line-height: 1.1;
 	letter-spacing: 0;
 	font-weight: 700;
 }
@@ -616,8 +617,8 @@ input {
 	margin: 0;
 	max-width: 1040px;
 	color: color-mix(in srgb, var(--ink), black 8%);
-	font-size: clamp(22px, 1.8vw, 29px);
-	line-height: 1.42;
+	font-size: clamp(16px, 1.4vw, 18px);
+	line-height: 1.45;
 	letter-spacing: 0;
 }
 
@@ -630,7 +631,7 @@ input {
 	background: color-mix(in srgb, var(--surface-output), white 12%);
 	color: var(--text-main);
 	font-style: italic;
-	font-size: 24px;
+	font-size: 18px;
 	line-height: 1.45;
 	letter-spacing: 0;
 }
