@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ConfirmModal from './ConfirmModal.jsx';
 
 function ArrowIcon({ direction }) {
 	const isUp = direction === 'up';
@@ -74,6 +75,7 @@ export default function CommentNode({
 	const [replying, setReplying] = useState(false);
 	const [replyText, setReplyText] = useState('');
 	const [replyError, setReplyError] = useState('');
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
 	const isDeleted = Boolean(comment.isDeleted || comment.commentText?.trim() === '[Comentario eliminado]');
 	const isAuthor = Boolean(currentUserId && comment.authorId && Number(currentUserId) === Number(comment.authorId));
@@ -99,9 +101,12 @@ export default function CommentNode({
 	}
 
 	function requestDelete() {
-		if (window.confirm('Eliminar este comentario?')) {
-			onDelete(comment.id);
-		}
+		setDeleteModalOpen(true);
+	}
+
+	function confirmDelete() {
+		setDeleteModalOpen(false);
+		onDelete(comment.id);
 	}
 
 	return (
@@ -226,6 +231,17 @@ export default function CommentNode({
 					))}
 				</div>
 			) : null}
+
+			<ConfirmModal
+				isOpen={deleteModalOpen}
+				title="Eliminar comentario"
+				message="¿Estás seguro de que deseas eliminar este comentario? Esta acción no se puede deshacer."
+				confirmText="Eliminar"
+				cancelText="Cancelar"
+				isDestructive={true}
+				onConfirm={confirmDelete}
+				onCancel={() => setDeleteModalOpen(false)}
+			/>
 		</div>
 	);
 }

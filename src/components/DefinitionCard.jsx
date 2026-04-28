@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CommentThread from './CommentThread.jsx';
+import ConfirmModal from './ConfirmModal.jsx';
 
 function ArrowIcon({ direction }) {
 	const isUp = direction === 'up';
@@ -72,6 +73,7 @@ export default function DefinitionCard({
 	const [draftDefinition, setDraftDefinition] = useState(definition.definition || '');
 	const [draftExample, setDraftExample] = useState(definition.example || '');
 	const [editError, setEditError] = useState('');
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
 	const authorId = Number(definition.authorId || 0);
 	const isAuthor = Boolean(currentUserId && authorId && Number(currentUserId) === authorId);
@@ -106,9 +108,12 @@ export default function DefinitionCard({
 
 	function requestDelete() {
 		setMenuOpen(false);
-		if (window.confirm('Eliminar esta definición?')) {
-			onDelete(definition.id);
-		}
+		setDeleteModalOpen(true);
+	}
+
+	function confirmDelete() {
+		setDeleteModalOpen(false);
+		onDelete(definition.id);
 	}
 
 	return (
@@ -260,6 +265,17 @@ export default function DefinitionCard({
 					<CommentThread definitionId={definition.id} currentUserId={currentUserId} isLoggedIn={isLoggedIn} />
 				</div>
 			) : null}
+
+			<ConfirmModal
+				isOpen={deleteModalOpen}
+				title="Eliminar definición"
+				message="¿Estás seguro de que deseas eliminar esta definición? Esta acción no se puede deshacer."
+				confirmText="Eliminar"
+				cancelText="Cancelar"
+				isDestructive={true}
+				onConfirm={confirmDelete}
+				onCancel={() => setDeleteModalOpen(false)}
+			/>
 		</article>
 	);
 }

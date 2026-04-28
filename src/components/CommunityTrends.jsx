@@ -293,14 +293,14 @@ function CommunityTrendsContent() {
 		<div className="grid gap-4">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div
-					className="inline-flex rounded-2xl border border-[#d8e2f8] bg-white p-1.5"
+					className="inline-flex rounded-full bg-[#f1f5f9] p-1"
 					role="tablist"
 					aria-label="Secciones de comunidad"
 				>
 					<button
 						type="button"
-						className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
-							activeTab === 'top' ? 'bg-[#dbeafe] text-[#1e3a8a]' : 'text-[#374151] hover:bg-[#eef5ff]'
+						className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+							activeTab === 'top' ? 'bg-white text-[#1d4ed8] shadow-sm' : 'text-[#475569] hover:text-[#0f172a]'
 						}`}
 						onClick={() => setActiveTab('top')}
 					>
@@ -308,8 +308,8 @@ function CommunityTrendsContent() {
 					</button>
 					<button
 						type="button"
-						className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
-							activeTab === 'create' ? 'bg-[#dbeafe] text-[#1e3a8a]' : 'text-[#374151] hover:bg-[#eef5ff]'
+						className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+							activeTab === 'create' ? 'bg-white text-[#1d4ed8] shadow-sm' : 'text-[#475569] hover:text-[#0f172a]'
 						}`}
 						onClick={() => setActiveTab('create')}
 					>
