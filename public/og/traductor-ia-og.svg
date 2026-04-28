@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Traductor IA - Guarani y Espanol</title>
+  <desc id="desc">Traductor IA de Guarani y Jopara para Paraguay.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8f0ff" />
+      <stop offset="100%" stop-color="#f4f7ff" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#005ac1" />
+      <stop offset="100%" stop-color="#5e8fd8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="170" cy="120" r="180" fill="#dbe8ff" opacity="0.6" />
+  <circle cx="1080" cy="560" r="220" fill="#d3e4ff" opacity="0.65" />
+
+  <rect x="90" y="88" width="1020" height="454" rx="28" fill="#ffffff" stroke="#b8d1fb" stroke-width="2" />
+  <rect x="90" y="88" width="1020" height="88" rx="28" fill="#f6f9ff" />
+
+  <text x="145" y="143" fill="#14345a" font-size="44" font-family="Segoe UI, Arial, sans-serif" font-weight="700">
+    Traductor IA
+  </text>
+
+  <rect x="145" y="228" width="370" height="56" rx="28" fill="#d3e4ff" />
+  <text x="238" y="265" fill="#0d2f53" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">
+    Guarani
+  </text>
+
+  <rect x="690" y="228" width="370" height="56" rx="28" fill="#d3e4ff" />
+  <text x="793" y="265" fill="#0d2f53" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">
+    Espanol
+  </text>
+
+  <rect x="546" y="217" width="108" height="78" rx="24" fill="#ffffff" stroke="#b8d1fb" stroke-width="2" />
+  <text x="585" y="270" fill="#005ac1" font-size="50" font-family="Segoe UI Symbol, Arial, sans-serif" font-weight="700">
+    ↔
+  </text>
+
+  <text x="145" y="360" fill="#2f4c6e" font-size="42" font-family="Segoe UI, Arial, sans-serif">
+    Traductor Guarani, Jopara y Espanol
+  </text>
+  <text x="145" y="420" fill="#4b6482" font-size="32" font-family="Segoe UI, Arial, sans-serif">
+    Comunidad y diccionario online para Paraguay
+  </text>
+
+  <rect x="145" y="462" width="390" height="54" rx="27" fill="url(#accent)" />
+  <text x="250" y="498" fill="#ffffff" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">
+    traductor-ia.app
+  </text>
+</svg>
