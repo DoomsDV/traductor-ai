@@ -7,16 +7,18 @@ interface Props {
 	ogImage?: string;
 	ogType?: 'website' | 'article';
 	twitterCard?: 'summary' | 'summary_large_image';
+	jsonLd?: any;
 }
 
 const {
-	title = 'Traductor Guarani IA | Espanol a Jopara natural',
-	description = 'Traductor IA de Guarani y Jopara para Paraguay. Traduce frases y descubre significados con apoyo comunitario.',
+	title = 'Traductor Guaraní IA | Español a Jopara natural',
+	description = 'Traductor IA de Guaraní y Jopara para Paraguay. Traduce frases y descubre significados con apoyo comunitario.',
 	canonicalURL,
 	keywords = 'traductor guarani espanol, jopara paraguay, diccionario guarani online, traducir castellano a guarani, cultura paraguaya',
 	ogImage = '/og/traductor-ia-og.svg',
 	ogType = 'website',
 	twitterCard = 'summary_large_image',
+	jsonLd,
 } = Astro.props;
 
 const baseSite = (import.meta.env.PUBLIC_SITE_URL || Astro.site?.toString() || '').trim();
@@ -49,3 +51,5 @@ const resolvedImage = toAbsoluteUrl(ogImage);
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 {resolvedImage ? <meta name="twitter:image" content={resolvedImage} /> : null}
+
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

@@ -2,11 +2,31 @@
 import TranslatorPanel from '../components/TranslatorPanel.jsx';
 import Layout from '../layouts/Layout.astro';
 
-const pageTitle = 'Traductor Guarani IA | Traduce Espanol a Jopara natural';
+const pageTitle = 'Traductor Guaraní a Español y Español a Guaraní con IA';
 const pageDescription =
-	'El primer traductor con inteligencia artificial que entiende el Jopara paraguayo. Traduce frases, aprende guarani y unete a la comunidad mas grande de Paraguay.';
+	'El mejor traductor inteligente de Guaraní a Español y de Español a Guaraní (Jopara). Traduce frases, textos y palabras al instante con inteligencia artificial. Únete a la comunidad de Paraguay.';
 const pageKeywords =
-	'traductor guarani espanol, jopara paraguay, diccionario guarani online, traducir castellano a guarani, cultura paraguaya';
+	'traductor guarani español, traductor de guarani a español, traductor de español a guarani, traductor jopara, diccionario guarani, traducir a guarani, traductor guarani paraguayo online, traducir castellano a guarani, traductor de guarani con audio, traductor español paraguayo';
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebApplication",
+	"name": "Traductor Guaraní-Español con IA",
+	"description": pageDescription,
+	"applicationCategory": "EducationalApplication, UtilityApplication",
+	"operatingSystem": "All",
+	"offers": {
+		"@type": "Offer",
+		"price": "0",
+		"priceCurrency": "USD"
+	},
+	"featureList": [
+		"Traductor Guaraní a Español",
+		"Traductor Español a Guaraní",
+		"Traductor Español a Jopara",
+		"Inteligencia Artificial"
+	]
+};
 ---
 
 <Layout
@@ -15,6 +35,7 @@ const pageKeywords =
 	keywords={pageKeywords}
 	canonicalURL="/"
 	ogImage="/og/traductor-ia-og.svg"
+	jsonLd={jsonLd}
 >
 	<main class="home">
 		<TranslatorPanel client:load />
